@@ -6,11 +6,11 @@
     <title>Study Zen</title>
 
     <link rel="manifest" href="manifest.json">
-
-    <link rel="icon" type="image/png" href="app_icon.png">
-
-    <link rel="apple-touch-icon" href="app_icon.png">
     
+    <link rel="icon" type="image/png" href="app_icon.png">
+    
+    <link rel="apple-touch-icon" href="app_icon.png">
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -262,10 +262,9 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             padding: 25px;
             margin-bottom: 20px;
-            min-height: 250px; /* Keep container size stable */
+            min-height: 250px;
         }
         
-        /* New Sub-Nav for History */
         .period-selector {
             display: flex;
             justify-content: center;
@@ -293,11 +292,11 @@
         }
 
         .history-section { 
-            display: none; /* Hidden by default */
+            display: none;
             animation: fadeIn 0.3s ease;
         }
         .history-section.active-history { 
-            display: block; /* Shown when active */
+            display: block; 
         }
 
         @keyframes fadeIn {
@@ -311,7 +310,7 @@
             padding: 15px; 
             border-radius: 15px;
             min-height: 60px;
-            justify-content: center; /* Center items if few */
+            justify-content: center; 
         }
         .history-plant { 
             width: 40px; height: 40px; 
@@ -605,19 +604,12 @@
         }
 
         // --- TABS & VIEWS ---
-        
         function switchHistoryPeriod(period) {
-            // 1. Hide all sections
             document.querySelectorAll('.history-section').forEach(el => el.classList.remove('active-history'));
-            // 2. Show the selected one
             document.getElementById(`wrap-${period}`).classList.add('active-history');
             
-            // 3. Update Button Styles
-            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active-period'));
-            // Find the button that was clicked (using the text content is a simple way here, or index)
-            // But actually, we can just look for the onclick matching the period.
-            // A simpler way for this small app:
             const btns = document.querySelectorAll('.period-btn');
+            btns.forEach(b => b.classList.remove('active-period'));
             if(period === 'today') btns[0].classList.add('active-period');
             if(period === 'week') btns[1].classList.add('active-period');
             if(period === 'month') btns[2].classList.add('active-period');
