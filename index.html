@@ -323,9 +323,39 @@
             display: flex;
             justify-content: center;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px; 
             border-bottom: 2px dashed var(--border-color);
             padding-bottom: 15px;
+        }
+
+        /* NAVIGATION CONTAINER */
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .nav-arrow {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--accent-green);
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+        .nav-arrow:hover { background-color: var(--circle-bg); }
+
+        .date-display {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--primary-text);
+            opacity: 0.8;
+            letter-spacing: 1px;
+            min-width: 180px; /* Keeps layout stable */
         }
 
         .period-btn {
@@ -410,19 +440,19 @@
             <div class="forest-container">
                 
                 <div class="period-selector">
-                    <button class="period-btn active-period" onclick="switchHistoryPeriod('today')">Today</button>
-                    <button class="period-btn" onclick="switchHistoryPeriod('week')">Week</button>
-                    <button class="period-btn" onclick="switchHistoryPeriod('month')">Month</button>
+                    <button class="period-btn active-period" onclick="changePeriod('today')">Day</button>
+                    <button class="period-btn" onclick="changePeriod('week')">Week</button>
+                    <button class="period-btn" onclick="changePeriod('month')">Month</button>
                 </div>
 
-                <div id="wrap-today" class="history-section active-history">
-                    <div class="plant-grid" id="grid-today"></div>
+                <div class="nav-controls">
+                    <button class="nav-arrow" onclick="shiftDate(-1)">❮</button>
+                    <div id="date-label" class="date-display">...</div>
+                    <button class="nav-arrow" onclick="shiftDate(1)">❯</button>
                 </div>
-                <div id="wrap-week" class="history-section">
-                    <div class="plant-grid" id="grid-week"></div>
-                </div>
-                <div id="wrap-month" class="history-section">
-                    <div class="plant-grid" id="grid-month"></div>
+
+                <div class="history-section active-history">
+                    <div class="plant-grid" id="history-grid"></div>
                 </div>
 
             </div>
@@ -467,6 +497,10 @@
         let mode = 'FOCUS'; 
         let timerInterval;
 
+        // --- HISTORY STATE ---
+        let currentPeriod = 'today'; // 'today', 'week', 'month'
+        let viewDate = new Date();   // The date currently being viewed in history
+
         // --- AUDIO (Zen Bell) ---
         const alarmSound = new Audio('https://cdn.freesound.org/previews/250/250553_4523178-lq.mp3'); 
         alarmSound.loop = true; 
@@ -476,10 +510,12 @@
         const timerDisplay = document.getElementById('timer');
         const startBtn = document.getElementById('start-btn');
         const themeBtn = document.getElementById('theme-icon');
+        const dateLabel = document.getElementById('date-label');
+        const historyGrid = document.getElementById('history-grid');
 
         // --- INIT ---
         renderPlant(); 
-        loadForest();
+        updateHistoryView(); // Load initial history
 
         // --- THEME TOGGLE ---
         function toggleTheme() {
@@ -527,15 +563,10 @@
                 toggleAdjust(true);
             } else {
                 // User wants to START
-                
-                // --- AUDIO FIX FOR IOS/MOBILE ---
-                // We play and immediately pause the sound on the user's first click.
-                // This "unlocks" the browser's audio engine so it allows the sound later.
                 alarmSound.play().then(() => {
                     alarmSound.pause();
                     alarmSound.currentTime = 0;
                 }).catch(e => console.log("Audio priming skipped:", e));
-                // --------------------------------
 
                 isActive = true;
                 startBtn.textContent = "Pause";
@@ -592,50 +623,37 @@
         function completeSession() {
             clearInterval(timerInterval);
             isActive = false;
-            
-            // 1. Play Sound (Now works on mobile because we primed it!)
             alarmSound.currentTime = 0;
             alarmSound.play().catch(e => console.log("Audio play failed interaction required"));
-            
             if ("vibrate" in navigator) navigator.vibrate([500, 500, 500]);
 
-            // 2. Prepare Popup Content
             const msgEl = document.getElementById('completion-msg');
             
             if (mode === 'FOCUS') {
                 saveHistory(focusMinutes, PLANT_LIBRARY[currentPlantIndex].images[3]);
                 msgEl.textContent = `You grew a ${PLANT_LIBRARY[currentPlantIndex].name}! Time to rest.`;
-                
-                // Prepare next state (Break)
                 mode = 'BREAK';
                 timeLeft = BREAK_MINUTES * 60;
                 startBtn.textContent = "Start Break";
             } else {
                 msgEl.textContent = "Break is over! Ready to focus again?";
-                
-                // Prepare next state (Focus)
                 mode = 'FOCUS';
                 timeLeft = focusMinutes * 60;
                 startBtn.textContent = "Start Focus";
             }
-
-            // 3. Show Popup
             document.getElementById('completion-modal').style.display = 'flex';
         }
 
-        // --- POPUP ACTION ---
         function stopAlarmAndClose() {
-            // Stop Sound
             alarmSound.pause();
             alarmSound.currentTime = 0;
-            
-            // Hide Modal
             document.getElementById('completion-modal').style.display = 'none';
-
-            // Update UI behind the modal
             updatePlantVisuals();
             updateDisplay();
-            loadForest();
+            
+            // Reload history to current day to show new plant
+            viewDate = new Date();
+            updateHistoryView(); 
         }
 
         function adjustTime(amount) {
@@ -647,7 +665,7 @@
             updateDisplay();
         }
 
-        // --- HISTORY ---
+        // --- HISTORY LOGIC ---
         function saveHistory(minutes, plantImageSrc) {
             const history = JSON.parse(localStorage.getItem('studyHistory') || '[]');
             history.push({
@@ -658,53 +676,92 @@
             localStorage.setItem('studyHistory', JSON.stringify(history));
         }
 
-        function loadForest() {
-            const history = JSON.parse(localStorage.getItem('studyHistory') || '[]');
-            const now = new Date();
-            
-            const gridToday = document.getElementById('grid-today');
-            const gridWeek = document.getElementById('grid-week');
-            const gridMonth = document.getElementById('grid-month');
-            
-            gridToday.innerHTML = ''; gridWeek.innerHTML = ''; gridMonth.innerHTML = '';
-            let cT = 0, cW = 0, cM = 0;
+        // --- NEW: Time Travel Logic ---
 
+        function changePeriod(period) {
+            currentPeriod = period;
+            // Highlight button
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active-period'));
+            // Button indexes: 0=Today, 1=Week, 2=Month
+            const btns = document.querySelectorAll('.period-btn');
+            if(period==='today') btns[0].classList.add('active-period');
+            if(period==='week') btns[1].classList.add('active-period');
+            if(period==='month') btns[2].classList.add('active-period');
+            
+            updateHistoryView();
+        }
+
+        function shiftDate(direction) {
+            // direction: -1 (back) or 1 (forward)
+            if (currentPeriod === 'today') {
+                viewDate.setDate(viewDate.getDate() + direction);
+            } else if (currentPeriod === 'week') {
+                viewDate.setDate(viewDate.getDate() + (direction * 7));
+            } else if (currentPeriod === 'month') {
+                viewDate.setMonth(viewDate.getMonth() + direction);
+            }
+            updateHistoryView();
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+        }
+
+        function updateHistoryView() {
+            const history = JSON.parse(localStorage.getItem('studyHistory') || '[]');
+            historyGrid.innerHTML = '';
+            let labelText = '';
+            
+            // Calculate Start and End range based on viewDate and currentPeriod
+            let startDate, endDate;
+
+            if (currentPeriod === 'today') {
+                startDate = new Date(viewDate);
+                startDate.setHours(0,0,0,0);
+                endDate = new Date(viewDate);
+                endDate.setHours(23,59,59,999);
+                // UPDATED: Show "Jan 21, 2026"
+                labelText = viewDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            } 
+            else if (currentPeriod === 'week') {
+                const day = viewDate.getDay(); 
+                const diff = viewDate.getDate() - day; // Adjust to Sunday
+                startDate = new Date(viewDate);
+                startDate.setDate(diff);
+                startDate.setHours(0,0,0,0);
+
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 6);
+                endDate.setHours(23,59,59,999);
+                labelText = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+            } 
+            else if (currentPeriod === 'month') {
+                startDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+                endDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
+                endDate.setHours(23,59,59,999);
+                // Show "January 2026"
+                labelText = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            }
+
+            dateLabel.textContent = labelText;
+
+            // Filter history items that fall within startDate and endDate
+            let count = 0;
             history.forEach(entry => {
                 const entryDate = new Date(entry.date);
-                const diffTime = Math.abs(now - entryDate);
-                const diffDays = diffTime / (1000 * 60 * 60 * 24); 
-
-                const img = document.createElement('img');
-                img.src = entry.plantImage || 'plant_stage_4.png'; 
-                img.className = 'history-plant';
-                img.title = `${new Date(entry.date).toLocaleString()} (${entry.minutes} mins)`;
-
-                if (entryDate.toDateString() === now.toDateString()) {
-                    gridToday.appendChild(img.cloneNode()); cT++;
-                }
-                if (diffDays <= 7) {
-                    gridWeek.appendChild(img.cloneNode()); cW++;
-                }
-                if (diffDays <= 30) {
-                    gridMonth.appendChild(img.cloneNode()); cM++;
+                if (entryDate >= startDate && entryDate <= endDate) {
+                    const img = document.createElement('img');
+                    img.src = entry.plantImage || 'plant_stage_4.png'; 
+                    img.className = 'history-plant';
+                    img.title = `${entryDate.toLocaleString()} (${entry.minutes} mins)`;
+                    historyGrid.appendChild(img);
+                    count++;
                 }
             });
 
-            if(cT === 0) gridToday.innerHTML = '<div class="empty-msg">No plants yet today.</div>';
-            if(cW === 0) gridWeek.innerHTML = '<div class="empty-msg">Empty forest...</div>';
-            if(cM === 0) gridMonth.innerHTML = '<div class="empty-msg">Start planting!</div>';
-        }
-
-        // --- TABS & VIEWS ---
-        function switchHistoryPeriod(period) {
-            document.querySelectorAll('.history-section').forEach(el => el.classList.remove('active-history'));
-            document.getElementById(`wrap-${period}`).classList.add('active-history');
-            
-            const btns = document.querySelectorAll('.period-btn');
-            btns.forEach(b => b.classList.remove('active-period'));
-            if(period === 'today') btns[0].classList.add('active-period');
-            if(period === 'week') btns[1].classList.add('active-period');
-            if(period === 'month') btns[2].classList.add('active-period');
+            if (count === 0) {
+                historyGrid.innerHTML = '<div class="empty-msg">No study sessions this period.</div>';
+            }
         }
 
         function switchTab(tabName) {
@@ -716,7 +773,7 @@
             } else {
                 document.getElementById('view-forest').classList.add('active-view');
                 document.querySelector('.nav-tabs .tab-btn:nth-child(2)').classList.add('active');
-                loadForest(); 
+                updateHistoryView(); 
             }
         }
     </script>
