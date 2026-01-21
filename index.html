@@ -6,26 +6,44 @@
     <title>Study Zen</title>
 
     <link rel="manifest" href="manifest.json">
-    
     <link rel="icon" type="image/png" href="chick_icon.png">
     <link rel="apple-touch-icon" href="chick_icon.png">
-
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=VT323&display=swap" rel="stylesheet">
 
     <style>
-        /* --- AESTHETIC VARIABLES --- */
+        /* --- AESTHETIC VARIABLES (LIGHT MODE DEFAULT) --- */
         :root {
+            /* Light Mode Colors */
+            --bg-color: #f1f8e9;
             --bg-overlay: rgba(255, 255, 255, 0.90);
             --primary-text: #2F4F4F;
             --accent-green: #556B2F;
             --highlight: #8FBC8F;
             --button-text: #FFFFFF;
             --border-color: #556B2F;
+            --card-shadow: rgba(0,0,0,0.15);
+            --grid-line: rgba(85, 107, 47, 0.1); 
+            --circle-bg: #E8F5E9;
+            --modal-overlay: rgba(47, 79, 79, 0.4);
+        }
+
+        /* --- DARK MODE VARIABLES --- */
+        body.dark-mode {
+            /* Dark Forest Colors */
+            --bg-color: #1b2e1b;
+            --bg-overlay: rgba(35, 45, 35, 0.95);
+            --primary-text: #e8f5e9;
+            --accent-green: #8FBC8F; 
+            --highlight: #556B2F;
+            --button-text: #1b2e1b;
+            --border-color: #8FBC8F;
+            --card-shadow: rgba(0,0,0,0.5);
+            --grid-line: rgba(255, 255, 255, 0.05); 
+            --circle-bg: #2F4F4F;
+            --modal-overlay: rgba(0, 0, 0, 0.7);
         }
 
         body {
@@ -36,17 +54,19 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            background-color: #f1f8e9;
+            background-color: var(--bg-color);
+            transition: background-color 0.3s, color 0.3s;
             
             /* Picnic Grid Background */
             background-image: 
-                linear-gradient(90deg, rgba(85, 107, 47, 0.1) 50%, transparent 50%),
-                linear-gradient(rgba(85, 107, 47, 0.1) 50%, transparent 50%);
+                linear-gradient(90deg, var(--grid-line) 50%, transparent 50%),
+                linear-gradient(var(--grid-line) 50%, transparent 50%);
             background-size: 50px 50px;
         }
 
         /* CARD CONTAINER */
         .app-container {
+            position: relative; 
             background-color: var(--bg-overlay);
             width: 90%; 
             max-width: 450px;
@@ -55,18 +75,43 @@
             flex-direction: column;
             align-items: center;
             padding-bottom: 50px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+            box-shadow: 0 10px 30px var(--card-shadow); 
             border-radius: 30px; 
             margin: 40px auto; 
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle-btn {
+            position: absolute;
+            top: 35px; 
+            right: 25px;
+            background: transparent;
+            border: none;
+            color: var(--primary-text);
+            font-size: 1.8rem;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, opacity 0.2s;
+            z-index: 10;
+            opacity: 0.8;
+        }
+        .theme-toggle-btn:hover { 
+            transform: rotate(15deg) scale(1.1); 
+            opacity: 1;
         }
 
         h1 {
             font-family: 'Dancing Script', cursive; 
             font-size: 4rem;
-            color: #3B533E;
+            color: var(--accent-green);
             margin-top: 40px;
             margin-bottom: 20px;
-            text-shadow: 2px 2px 0px rgba(255,255,255,0.8);
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.2);
         }
 
         /* --- ROUNDED TABS (Main Navigation) --- */
@@ -77,7 +122,7 @@
         }
         
         .tab-btn {
-            background: white;
+            background: var(--bg-overlay);
             border: 2px solid var(--border-color);
             color: var(--primary-text);
             padding: 8px 20px;
@@ -86,14 +131,14 @@
             text-transform: uppercase;
             border-radius: 30px; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-            transition: transform 0.1s;
+            transition: all 0.2s;
         }
 
         .tab-btn:active { transform: scale(0.95); }
 
         .tab-btn.active {
             background-color: var(--accent-green);
-            color: white;
+            color: var(--button-text);
             border-color: var(--accent-green);
         }
 
@@ -110,7 +155,7 @@
         .plant-circle {
             width: 260px;
             height: 260px;
-            background-color: #E8F5E9;
+            background-color: var(--circle-bg);
             border: 4px solid var(--border-color);
             border-radius: 50%;
             display: flex;
@@ -121,7 +166,7 @@
             cursor: pointer;
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             overflow: hidden;
-            transition: transform 0.2s;
+            transition: transform 0.2s, background-color 0.3s;
         }
 
         .plant-circle:hover { transform: scale(1.02); }
@@ -138,7 +183,7 @@
             position: absolute;
             top: 25px;
             font-size: 1.1rem;
-            color: var(--primary-text);
+            color: #2F4F4F; /* Always dark text for readability on light bg */
             background: rgba(255,255,255,0.9);
             border-radius: 20px;
             padding: 4px 12px;
@@ -163,7 +208,7 @@
         }
 
         .adjust-btn {
-            background-color: white;
+            background-color: var(--bg-overlay);
             border: 2px solid var(--border-color);
             color: var(--primary-text);
             width: 50px;
@@ -177,7 +222,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             transition: 0.2s;
         }
-        .adjust-btn:hover { background-color: #E8F5E9; transform: translateY(-2px); }
+        .adjust-btn:hover { background-color: var(--circle-bg); transform: translateY(-2px); }
         .adjust-btn:active { transform: translateY(0); }
 
         /* MAIN BUTTONS */
@@ -197,15 +242,15 @@
         }
 
         .main-btn:active { transform: scale(0.95); }
-        .btn-start { background-color: var(--accent-green); }
-        .btn-reset { background-color: #ef5350; }
+        .btn-start { background-color: var(--accent-green); color: var(--button-text); }
+        .btn-reset { background-color: #ef5350; color: white; }
 
-        /* --- GREENHOUSE (MODAL) --- */
+        /* --- MODALS (Greenhouse & Completion) --- */
         .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(47, 79, 79, 0.4); 
+            background: var(--modal-overlay); 
             align-items: center;
             justify-content: center;
             z-index: 100;
@@ -213,15 +258,24 @@
         }
 
         .modal-content {
-            background: #fff;
+            background: var(--bg-overlay);
+            color: var(--primary-text);
             padding: 30px;
             border-radius: 30px;
             width: 90%;
             max-width: 450px;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 2px solid var(--border-color);
         }
 
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Greenhouse Specifics */
         .plant-options {
             display: flex;
             flex-wrap: wrap;
@@ -234,7 +288,7 @@
             border: 2px solid transparent;
             padding: 10px;
             cursor: pointer;
-            background: #FAFAFA;
+            background: rgba(255,255,255,0.5);
             width: 90px;
             display: flex;
             flex-direction: column;
@@ -243,25 +297,26 @@
             transition: all 0.2s;
         }
 
-        .plant-option:hover { transform:translateY(-5px); background: #f0f0f0; }
+        .plant-option:hover { transform:translateY(-5px); background: rgba(255,255,255,0.8); }
         .plant-option.selected {
             border-color: var(--accent-green);
-            background: #E8F5E9;
+            background: var(--circle-bg);
             box-shadow: 0 4px 10px rgba(85, 107, 47, 0.2);
         }
 
         .option-img { width: 50px; height: 50px; object-fit: contain; image-rendering: pixelated; margin-bottom: 5px; }
-        .option-name { display: block; font-size: 1rem; color: #555; }
+        .option-name { display: block; font-size: 1rem; color: var(--primary-text); }
 
         /* --- FOREST HISTORY --- */
         .forest-container {
             width: 85%;
-            background-color: white;
+            background-color: var(--bg-overlay);
             border-radius: 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             padding: 25px;
             margin-bottom: 20px;
             min-height: 250px;
+            transition: background-color 0.3s;
         }
         
         .period-selector {
@@ -269,7 +324,7 @@
             justify-content: center;
             gap: 10px;
             margin-bottom: 20px;
-            border-bottom: 2px dashed #eee;
+            border-bottom: 2px dashed var(--border-color);
             padding-bottom: 15px;
         }
 
@@ -287,7 +342,7 @@
 
         .period-btn.active-period {
             background: var(--accent-green);
-            color: white;
+            color: var(--button-text);
         }
 
         .history-section { 
@@ -305,7 +360,7 @@
 
         .plant-grid {
             display: flex; flex-wrap: wrap; gap: 10px;
-            background-color: #F9FDF9;
+            background-color: rgba(255,255,255,0.3);
             padding: 15px; 
             border-radius: 15px;
             min-height: 60px;
@@ -316,13 +371,15 @@
             image-rendering: pixelated; 
             filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
         }
-        .empty-msg { font-size: 1.1rem; color: #888; width: 100%; text-align: center; padding: 10px; }
+        .empty-msg { font-size: 1.1rem; color: var(--primary-text); opacity: 0.7; width: 100%; text-align: center; padding: 10px; }
 
     </style>
 </head>
 <body>
 
     <div class="app-container">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-icon">☀️</button>
+
         <h1>Study Zen</h1>
 
         <div class="nav-tabs">
@@ -374,7 +431,7 @@
 
     <div id="greenhouse-modal" class="modal-overlay" onclick="closeGreenhouse(event)">
         <div class="modal-content">
-            <h2 style="font-family:'Dancing Script'; font-size:2.5rem; margin:0; color:#3B533E;">Growth Chart</h2>
+            <h2 style="font-family:'Dancing Script'; font-size:2.5rem; margin:0; color:var(--accent-green);">Growth Chart</h2>
             <p style="margin-bottom: 20px;">Pick a seed to plant:</p>
             <div class="plant-options" id="plant-list">
                 </div>
@@ -382,34 +439,23 @@
         </div>
     </div>
 
+    <div id="completion-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="completion-icon">🎉</span>
+            <h2 style="font-family:'Dancing Script'; font-size:3rem; margin:0; color:var(--accent-green);">Time is up!</h2>
+            <p id="completion-msg" style="font-size: 1.2rem; margin: 20px 0;">You grew a beautiful plant.</p>
+            <button class="main-btn btn-start" onclick="stopAlarmAndClose()">Take a Break</button>
+        </div>
+    </div>
+
     <script>
         // --- 1. PLANT LIBRARY ---
         const PLANT_LIBRARY = [
-            {
-                id: 'plant',
-                name: 'Green Plant',
-                images: ['plant_stage_1.png', 'plant_stage_2.png', 'plant_stage_3.png', 'plant_stage_4.png']
-            },
-            {
-                id: 'flower',
-                name: 'Pink Flower',
-                images: ['flower_1.png', 'flower_2.png', 'flower_3.png', 'flower_4.png']
-            },
-            {
-                id: 'coffee',
-                name: 'Morning Brew',
-                images: ['coffee_1.png', 'coffee_2.png', 'coffee_3.png', 'coffee_4.png']
-            },
-            {
-                id: 'chick',
-                name: 'Chicky',
-                images: ['chick_1.png', 'chick_2.png', 'chick_3.png', 'chick_4.png']
-            },
-            {
-                id: 'daisy',
-                name: 'Daisy', 
-                images: ['daisy_1.png', 'daisy_2.png', 'daisy_3.png', 'daisy_4.png']
-            }
+            { id: 'plant', name: 'Green Plant', images: ['plant_stage_1.png', 'plant_stage_2.png', 'plant_stage_3.png', 'plant_stage_4.png'] },
+            { id: 'flower', name: 'Pink Flower', images: ['flower_1.png', 'flower_2.png', 'flower_3.png', 'flower_4.png'] },
+            { id: 'coffee', name: 'Morning Brew', images: ['coffee_1.png', 'coffee_2.png', 'coffee_3.png', 'coffee_4.png'] },
+            { id: 'chick', name: 'Chicky', images: ['chick_1.png', 'chick_2.png', 'chick_3.png', 'chick_4.png'] },
+            { id: 'daisy', name: 'Daisy', images: ['daisy_1.png', 'daisy_2.png', 'daisy_3.png', 'daisy_4.png'] }
         ];
 
         // --- CONFIG & STATE ---
@@ -421,17 +467,26 @@
         let mode = 'FOCUS'; 
         let timerInterval;
 
-        // --- AUDIO ---
-        const alarmSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clank_car_horn.ogg'); 
+        // --- AUDIO (Zen Bell) ---
+        const alarmSound = new Audio('https://cdn.freesound.org/previews/250/250553_4523178-lq.mp3'); 
+        alarmSound.loop = true; 
 
         // --- ELEMENTS ---
         const plantImg = document.getElementById('plant-img');
         const timerDisplay = document.getElementById('timer');
         const startBtn = document.getElementById('start-btn');
+        const themeBtn = document.getElementById('theme-icon');
 
         // --- INIT ---
         renderPlant(); 
         loadForest();
+
+        // --- THEME TOGGLE ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            themeBtn.textContent = isDark ? '🌙' : '☀️';
+        }
 
         // --- GREENHOUSE ---
         function openGreenhouse() {
@@ -465,11 +520,23 @@
         // --- TIMER ---
         function toggleTimer() {
             if (isActive) {
+                // User wants to PAUSE
                 clearInterval(timerInterval);
                 isActive = false;
                 startBtn.textContent = "Resume";
                 toggleAdjust(true);
             } else {
+                // User wants to START
+                
+                // --- AUDIO FIX FOR IOS/MOBILE ---
+                // We play and immediately pause the sound on the user's first click.
+                // This "unlocks" the browser's audio engine so it allows the sound later.
+                alarmSound.play().then(() => {
+                    alarmSound.pause();
+                    alarmSound.currentTime = 0;
+                }).catch(e => console.log("Audio priming skipped:", e));
+                // --------------------------------
+
                 isActive = true;
                 startBtn.textContent = "Pause";
                 toggleAdjust(false);
@@ -525,21 +592,47 @@
         function completeSession() {
             clearInterval(timerInterval);
             isActive = false;
-            alarmSound.play().catch(e => console.log("Audio needed"));
-            if ("vibrate" in navigator) navigator.vibrate([500, 200, 500]);
+            
+            // 1. Play Sound (Now works on mobile because we primed it!)
+            alarmSound.currentTime = 0;
+            alarmSound.play().catch(e => console.log("Audio play failed interaction required"));
+            
+            if ("vibrate" in navigator) navigator.vibrate([500, 500, 500]);
 
+            // 2. Prepare Popup Content
+            const msgEl = document.getElementById('completion-msg');
+            
             if (mode === 'FOCUS') {
                 saveHistory(focusMinutes, PLANT_LIBRARY[currentPlantIndex].images[3]);
-                alert(`Grown: ${PLANT_LIBRARY[currentPlantIndex].name}!`);
+                msgEl.textContent = `You grew a ${PLANT_LIBRARY[currentPlantIndex].name}! Time to rest.`;
+                
+                // Prepare next state (Break)
                 mode = 'BREAK';
                 timeLeft = BREAK_MINUTES * 60;
-                startBtn.textContent = "Break";
+                startBtn.textContent = "Start Break";
             } else {
-                alert("Ready to focus?");
+                msgEl.textContent = "Break is over! Ready to focus again?";
+                
+                // Prepare next state (Focus)
                 mode = 'FOCUS';
                 timeLeft = focusMinutes * 60;
-                startBtn.textContent = "Start";
+                startBtn.textContent = "Start Focus";
             }
+
+            // 3. Show Popup
+            document.getElementById('completion-modal').style.display = 'flex';
+        }
+
+        // --- POPUP ACTION ---
+        function stopAlarmAndClose() {
+            // Stop Sound
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+            
+            // Hide Modal
+            document.getElementById('completion-modal').style.display = 'none';
+
+            // Update UI behind the modal
             updatePlantVisuals();
             updateDisplay();
             loadForest();
@@ -597,9 +690,9 @@
                 }
             });
 
-            if(cT === 0) gridToday.innerHTML = '<div class="empty-msg">...</div>';
-            if(cW === 0) gridWeek.innerHTML = '<div class="empty-msg">...</div>';
-            if(cM === 0) gridMonth.innerHTML = '<div class="empty-msg">...</div>';
+            if(cT === 0) gridToday.innerHTML = '<div class="empty-msg">No plants yet today.</div>';
+            if(cW === 0) gridWeek.innerHTML = '<div class="empty-msg">Empty forest...</div>';
+            if(cM === 0) gridMonth.innerHTML = '<div class="empty-msg">Start planting!</div>';
         }
 
         // --- TABS & VIEWS ---
