@@ -81,7 +81,7 @@
             transition: background-color 0.3s, box-shadow 0.3s;
         }
 
-        /* SHARED TOGGLE BUTTON STYLE (Sound & Theme) */
+        /* SHARED TOGGLE BUTTON STYLE */
         .header-icon-btn {
             position: absolute;
             top: 35px; 
@@ -363,7 +363,6 @@
             min-width: 180px; /* Keeps layout stable */
         }
 
-        /* NEW: Stats Display (Total Focus) */
         .stats-display {
             text-align: center;
             font-size: 1.4rem;
@@ -516,13 +515,15 @@
         let timerInterval;
 
         // --- HISTORY STATE ---
-        let currentPeriod = 'today'; // 'today', 'week', 'month'
-        let viewDate = new Date();   // The date currently being viewed in history
+        let currentPeriod = 'today'; 
+        let viewDate = new Date();
         
         // --- AUDIO STATE ---
         let isMuted = false;
-        const alarmSound = new Audio('https://cdn.freesound.org/previews/250/250553_4523178-lq.mp3'); 
+        // UPDATED: Using a reliable raw GitHub link for a nice Meditation Bell
+        const alarmSound = new Audio('https://raw.githubusercontent.com/ArunMichaelDsouza/javascript-hard-parts/master/01-callbacks/audios/bell.mp3'); 
         alarmSound.loop = true; 
+        alarmSound.volume = 1.0; // Force 100% volume
 
         // --- ELEMENTS ---
         const plantImg = document.getElementById('plant-img');
@@ -536,7 +537,7 @@
 
         // --- INIT ---
         renderPlant(); 
-        updateHistoryView(); // Load initial history
+        updateHistoryView(); 
 
         // --- TOGGLES ---
         function toggleTheme() {
@@ -548,10 +549,20 @@
         function toggleSound() {
             isMuted = !isMuted;
             soundBtn.textContent = isMuted ? '🔇' : '🔊';
-            // If playing, stop it immediately when muted
+            
             if(isMuted) {
+                // Muted
                 alarmSound.pause();
                 alarmSound.currentTime = 0;
+            } else {
+                // TEST SOUND: Play immediately when unmuted to verify
+                alarmSound.play().then(() => {
+                    // Play for 1 second then stop, just to test
+                    setTimeout(() => {
+                        alarmSound.pause();
+                        alarmSound.currentTime = 0;
+                    }, 1500);
+                }).catch(e => console.log("Audio test failed"));
             }
         }
 
@@ -826,4 +837,3 @@
     </script>
 </body>
 </html>
-
