@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=VT323&display=swap" rel="stylesheet">
 
     <style>
-        /* --- AESTHETIC VARIABLES (LIGHT MODE DEFAULT) --- */
+        /* --- AESTHETIC VARIABLES --- */
         :root {
             --bg-color: #f1f8e9;
             --bg-overlay: rgba(255, 255, 255, 0.90);
@@ -29,7 +29,6 @@
             --modal-overlay: rgba(47, 79, 79, 0.4);
         }
 
-        /* --- DARK MODE VARIABLES --- */
         body.dark-mode {
             --bg-color: #1b2e1b;
             --bg-overlay: rgba(35, 45, 35, 0.95);
@@ -307,7 +306,6 @@
         
         // Audio State
         let isMuted = false;
-        // We use AudioContext for reliable internal sound generation
         let audioCtx = null;
 
         // --- ELEMENTS ---
@@ -324,43 +322,47 @@
         renderPlant(); 
         updateHistoryView(); 
 
-        // --- SOUND SYSTEM (The Fix) ---
+        // --- NEW: PLEASANT DIGITAL CHIME ---
         function playDigitalChime() {
             if (isMuted) return;
 
-            // Initialize AudioContext if not already done (must be done on user gesture)
+            // 1. Init Audio Context (Must happen on user action or exist already)
             if (!audioCtx) {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 if (AudioContext) audioCtx = new AudioContext();
             }
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
 
-            if (!audioCtx) return; // Browser doesn't support audio
-
-            // Resume context if suspended (common in Chrome/Safari)
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-
-            // Create a pleasant chime tone using Oscillators
             const t = audioCtx.currentTime;
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
 
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
+            // Helper to create one tone of the chord
+            const createOsc = (freq, gainVal, decay) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.type = 'sine'; // Sine waves are pure and soft
+                osc.frequency.value = freq;
+                
+                // Volume Envelope: 
+                // 1. Start at 0
+                // 2. Ramp to volume in 0.05s (Soft Attack - no click)
+                // 3. Fade out slowly (Decay)
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(gainVal, t + 0.05); 
+                gain.gain.exponentialRampToValueAtTime(0.001, t + decay); 
+                
+                osc.start(t);
+                osc.stop(t + decay);
+            };
 
-            // Sine wave for smooth "Zen" bell sound
-            oscillator.type = 'sine'; 
-            // Frequency A5 (880Hz) fading down
-            oscillator.frequency.setValueAtTime(880, t);
-            oscillator.frequency.exponentialRampToValueAtTime(110, t + 2);
-
-            // Volume control (Fade out)
-            gainNode.gain.setValueAtTime(0.5, t);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, t + 2);
-
-            oscillator.start(t);
-            oscillator.stop(t + 2);
+            // Play a "C Major 7" style peaceful chord
+            createOsc(523.25, 0.4, 4.0); // C5 (Main Tone)
+            createOsc(783.99, 0.2, 3.5); // G5 (Harmonic Fifth)
+            createOsc(1046.50, 0.1, 3.0); // C6 (Octave Shimmer)
         }
 
         function toggleSound() {
@@ -417,7 +419,7 @@
                 startBtn.textContent = "Resume";
                 toggleAdjust(true);
             } else {
-                // Initialize audio context on first user interaction
+                // Initialize audio context on first click to obey browser rules
                 if (!audioCtx) {
                     const AudioContext = window.AudioContext || window.webkitAudioContext;
                     if (AudioContext) audioCtx = new AudioContext();
