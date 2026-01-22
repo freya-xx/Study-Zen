@@ -81,11 +81,10 @@
             transition: background-color 0.3s, box-shadow 0.3s;
         }
 
-        /* Theme Toggle Button */
-        .theme-toggle-btn {
+        /* SHARED TOGGLE BUTTON STYLE (Sound & Theme) */
+        .header-icon-btn {
             position: absolute;
             top: 35px; 
-            right: 25px;
             background: transparent;
             border: none;
             color: var(--primary-text);
@@ -100,10 +99,16 @@
             z-index: 10;
             opacity: 0.8;
         }
-        .theme-toggle-btn:hover { 
-            transform: rotate(15deg) scale(1.1); 
+        .header-icon-btn:hover { 
+            transform: scale(1.1); 
             opacity: 1;
         }
+
+        /* Positioning */
+        .theme-toggle-btn { right: 25px; }
+        .theme-toggle-btn:hover { transform: rotate(15deg) scale(1.1); }
+        
+        .sound-toggle-btn { left: 25px; }
 
         h1 {
             font-family: 'Dancing Script', cursive; 
@@ -334,7 +339,7 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         
         .nav-arrow {
@@ -356,6 +361,15 @@
             opacity: 0.8;
             letter-spacing: 1px;
             min-width: 180px; /* Keeps layout stable */
+        }
+
+        /* NEW: Stats Display (Total Focus) */
+        .stats-display {
+            text-align: center;
+            font-size: 1.4rem;
+            color: var(--accent-green);
+            font-weight: bold;
+            margin-bottom: 20px;
         }
 
         .period-btn {
@@ -408,7 +422,9 @@
 <body>
 
     <div class="app-container">
-        <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-icon">☀️</button>
+        <button class="header-icon-btn sound-toggle-btn" onclick="toggleSound()" id="sound-icon">🔊</button>
+        
+        <button class="header-icon-btn theme-toggle-btn" onclick="toggleTheme()" id="theme-icon">☀️</button>
 
         <h1>Study Zen</h1>
 
@@ -450,6 +466,8 @@
                     <div id="date-label" class="date-display">...</div>
                     <button class="nav-arrow" onclick="shiftDate(1)">❯</button>
                 </div>
+
+                <div id="stats-label" class="stats-display">Total Focus: 0h 0m</div>
 
                 <div class="history-section active-history">
                     <div class="plant-grid" id="history-grid"></div>
@@ -500,8 +518,9 @@
         // --- HISTORY STATE ---
         let currentPeriod = 'today'; // 'today', 'week', 'month'
         let viewDate = new Date();   // The date currently being viewed in history
-
-        // --- AUDIO (Zen Bell) ---
+        
+        // --- AUDIO STATE ---
+        let isMuted = false;
         const alarmSound = new Audio('https://cdn.freesound.org/previews/250/250553_4523178-lq.mp3'); 
         alarmSound.loop = true; 
 
@@ -510,18 +529,30 @@
         const timerDisplay = document.getElementById('timer');
         const startBtn = document.getElementById('start-btn');
         const themeBtn = document.getElementById('theme-icon');
+        const soundBtn = document.getElementById('sound-icon');
         const dateLabel = document.getElementById('date-label');
+        const statsLabel = document.getElementById('stats-label');
         const historyGrid = document.getElementById('history-grid');
 
         // --- INIT ---
         renderPlant(); 
         updateHistoryView(); // Load initial history
 
-        // --- THEME TOGGLE ---
+        // --- TOGGLES ---
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
             themeBtn.textContent = isDark ? '🌙' : '☀️';
+        }
+
+        function toggleSound() {
+            isMuted = !isMuted;
+            soundBtn.textContent = isMuted ? '🔇' : '🔊';
+            // If playing, stop it immediately when muted
+            if(isMuted) {
+                alarmSound.pause();
+                alarmSound.currentTime = 0;
+            }
         }
 
         // --- GREENHOUSE ---
@@ -563,10 +594,12 @@
                 toggleAdjust(true);
             } else {
                 // User wants to START
-                alarmSound.play().then(() => {
-                    alarmSound.pause();
-                    alarmSound.currentTime = 0;
-                }).catch(e => console.log("Audio priming skipped:", e));
+                if(!isMuted) {
+                    alarmSound.play().then(() => {
+                        alarmSound.pause();
+                        alarmSound.currentTime = 0;
+                    }).catch(e => console.log("Audio priming skipped:", e));
+                }
 
                 isActive = true;
                 startBtn.textContent = "Pause";
@@ -623,8 +656,13 @@
         function completeSession() {
             clearInterval(timerInterval);
             isActive = false;
-            alarmSound.currentTime = 0;
-            alarmSound.play().catch(e => console.log("Audio play failed interaction required"));
+            
+            // Only play audio if NOT muted
+            if(!isMuted) {
+                alarmSound.currentTime = 0;
+                alarmSound.play().catch(e => console.log("Audio play failed interaction required"));
+            }
+            
             if ("vibrate" in navigator) navigator.vibrate([500, 500, 500]);
 
             const msgEl = document.getElementById('completion-msg');
@@ -676,7 +714,7 @@
             localStorage.setItem('studyHistory', JSON.stringify(history));
         }
 
-        // --- NEW: Time Travel Logic ---
+        // --- HISTORY VIEW & TIME TRAVEL ---
 
         function changePeriod(period) {
             currentPeriod = period;
@@ -720,7 +758,6 @@
                 startDate.setHours(0,0,0,0);
                 endDate = new Date(viewDate);
                 endDate.setHours(23,59,59,999);
-                // UPDATED: Show "Jan 21, 2026"
                 labelText = viewDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             } 
             else if (currentPeriod === 'week') {
@@ -739,25 +776,35 @@
                 startDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
                 endDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
                 endDate.setHours(23,59,59,999);
-                // Show "January 2026"
                 labelText = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
             }
 
             dateLabel.textContent = labelText;
 
-            // Filter history items that fall within startDate and endDate
+            // Filter history items and Calculate Total Minutes
+            let totalMinutes = 0;
             let count = 0;
+
             history.forEach(entry => {
                 const entryDate = new Date(entry.date);
                 if (entryDate >= startDate && entryDate <= endDate) {
+                    // Add visual item
                     const img = document.createElement('img');
                     img.src = entry.plantImage || 'plant_stage_4.png'; 
                     img.className = 'history-plant';
                     img.title = `${entryDate.toLocaleString()} (${entry.minutes} mins)`;
                     historyGrid.appendChild(img);
+                    
+                    // Add to stats
+                    totalMinutes += parseInt(entry.minutes);
                     count++;
                 }
             });
+
+            // Update Stats Display
+            const hours = Math.floor(totalMinutes / 60);
+            const mins = totalMinutes % 60;
+            statsLabel.textContent = `Total Focus: ${hours}h ${mins}m`;
 
             if (count === 0) {
                 historyGrid.innerHTML = '<div class="empty-msg">No study sessions this period.</div>';
