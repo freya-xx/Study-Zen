@@ -16,7 +16,6 @@
     <style>
         /* --- AESTHETIC VARIABLES (LIGHT MODE DEFAULT) --- */
         :root {
-            /* Light Mode Colors */
             --bg-color: #f1f8e9;
             --bg-overlay: rgba(255, 255, 255, 0.90);
             --primary-text: #2F4F4F;
@@ -32,7 +31,6 @@
 
         /* --- DARK MODE VARIABLES --- */
         body.dark-mode {
-            /* Dark Forest Colors */
             --bg-color: #1b2e1b;
             --bg-overlay: rgba(35, 45, 35, 0.95);
             --primary-text: #e8f5e9;
@@ -56,15 +54,12 @@
             min-height: 100vh;
             background-color: var(--bg-color);
             transition: background-color 0.3s, color 0.3s;
-            
-            /* Picnic Grid Background */
             background-image: 
                 linear-gradient(90deg, var(--grid-line) 50%, transparent 50%),
                 linear-gradient(var(--grid-line) 50%, transparent 50%);
             background-size: 50px 50px;
         }
 
-        /* CARD CONTAINER */
         .app-container {
             position: relative; 
             background-color: var(--bg-overlay);
@@ -81,7 +76,7 @@
             transition: background-color 0.3s, box-shadow 0.3s;
         }
 
-        /* SHARED TOGGLE BUTTON STYLE */
+        /* ICONS */
         .header-icon-btn {
             position: absolute;
             top: 35px; 
@@ -99,15 +94,8 @@
             z-index: 10;
             opacity: 0.8;
         }
-        .header-icon-btn:hover { 
-            transform: scale(1.1); 
-            opacity: 1;
-        }
-
-        /* Positioning */
+        .header-icon-btn:hover { transform: scale(1.1); opacity: 1; }
         .theme-toggle-btn { right: 25px; }
-        .theme-toggle-btn:hover { transform: rotate(15deg) scale(1.1); }
-        
         .sound-toggle-btn { left: 25px; }
 
         h1 {
@@ -116,16 +104,9 @@
             color: var(--accent-green);
             margin-top: 40px;
             margin-bottom: 20px;
-            text-shadow: 2px 2px 0px rgba(255,255,255,0.2);
         }
 
-        /* --- ROUNDED TABS (Main Navigation) --- */
-        .nav-tabs {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        
+        .nav-tabs { display: flex; gap: 15px; margin-bottom: 30px; }
         .tab-btn {
             background: var(--bg-overlay);
             border: 2px solid var(--border-color);
@@ -138,291 +119,105 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
             transition: all 0.2s;
         }
-
-        .tab-btn:active { transform: scale(0.95); }
-
         .tab-btn.active {
             background-color: var(--accent-green);
             color: var(--button-text);
             border-color: var(--accent-green);
         }
 
-        /* --- SECTIONS --- */
-        .view-section {
-            display: none;
-            width: 100%;
-            flex-direction: column;
-            align-items: center;
-        }
+        .view-section { display: none; width: 100%; flex-direction: column; align-items: center; }
         .view-section.active-view { display: flex; }
 
-        /* --- TIMER VIEW --- */
         .plant-circle {
-            width: 260px;
-            height: 260px;
+            width: 260px; height: 260px;
             background-color: var(--circle-bg);
             border: 4px solid var(--border-color);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            position: relative;
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px; position: relative;
+            cursor: pointer; overflow: hidden;
             transition: transform 0.2s, background-color 0.3s;
         }
-
-        .plant-circle:hover { transform: scale(1.02); }
         .plant-circle:active { transform: scale(0.98); }
-
-        #plant-img {
-            width: 160px; 
-            height: 160px;
-            object-fit: contain;
-            image-rendering: pixelated; 
-        }
+        #plant-img { width: 160px; height: 160px; object-fit: contain; image-rendering: pixelated; }
 
         .change-hint {
-            position: absolute;
-            top: 25px;
-            font-size: 1.1rem;
-            color: #2F4F4F; /* Always dark text for readability on light bg */
+            position: absolute; top: 25px;
+            font-size: 1.1rem; color: #2F4F4F;
             background: rgba(255,255,255,0.9);
-            border-radius: 20px;
-            padding: 4px 12px;
+            border-radius: 20px; padding: 4px 12px;
             pointer-events: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* TIMER & CONTROLS */
-        .timer-container {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin: 10px 0 30px 0;
-        }
-
-        .timer {
-            font-size: 5rem;
-            font-weight: 400;
-            color: var(--primary-text);
-            min-width: 220px;
-            text-align: center;
-        }
-
+        .timer-container { display: flex; align-items: center; gap: 20px; margin: 10px 0 30px 0; }
+        .timer { font-size: 5rem; color: var(--primary-text); min-width: 220px; text-align: center; }
         .adjust-btn {
             background-color: var(--bg-overlay);
             border: 2px solid var(--border-color);
             color: var(--primary-text);
-            width: 50px;
-            height: 50px;
-            font-size: 2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 50px; height: 50px; font-size: 2rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
             border-radius: 50%; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: 0.2s;
         }
-        .adjust-btn:hover { background-color: var(--circle-bg); transform: translateY(-2px); }
-        .adjust-btn:active { transform: translateY(0); }
 
-        /* MAIN BUTTONS */
         .controls { display: flex; gap: 20px; margin-bottom: 30px; }
-
         .main-btn {
-            padding: 12px 35px;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--button-text);
-            text-transform: uppercase;
-            font-family: 'VT323', monospace;
-            border-radius: 50px; 
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-            transition: all 0.2s;
+            padding: 12px 35px; border: none; font-size: 1.5rem;
+            cursor: pointer; color: var(--button-text);
+            text-transform: uppercase; font-family: 'VT323', monospace;
+            border-radius: 50px; box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
-
-        .main-btn:active { transform: scale(0.95); }
-        .btn-start { background-color: var(--accent-green); color: var(--button-text); }
+        .btn-start { background-color: var(--accent-green); }
         .btn-reset { background-color: #ef5350; color: white; }
 
-        /* --- MODALS (Greenhouse & Completion) --- */
+        /* MODALS */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--modal-overlay); 
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            backdrop-filter: blur(4px);
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--modal-overlay); align-items: center; justify-content: center;
+            z-index: 100; backdrop-filter: blur(4px);
         }
-
         .modal-content {
-            background: var(--bg-overlay);
-            color: var(--primary-text);
-            padding: 30px;
-            border-radius: 30px;
-            width: 90%;
-            max-width: 450px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            border: 2px solid var(--border-color);
+            background: var(--bg-overlay); color: var(--primary-text);
+            padding: 30px; border-radius: 30px; width: 90%; max-width: 450px;
+            text-align: center; border: 2px solid var(--border-color);
         }
-
-        .completion-icon {
-            font-size: 4rem;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        /* Greenhouse Specifics */
-        .plant-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
+        .plant-options { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 20px; }
         .plant-option {
-            border: 2px solid transparent;
-            padding: 10px;
-            cursor: pointer;
-            background: rgba(255,255,255,0.5);
-            width: 90px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            border: 2px solid transparent; padding: 10px; cursor: pointer;
+            background: rgba(255,255,255,0.5); width: 90px;
+            display: flex; flex-direction: column; align-items: center;
             border-radius: 20px;
-            transition: all 0.2s;
         }
+        .plant-option.selected { border-color: var(--accent-green); background: var(--circle-bg); }
+        .option-img { width: 50px; height: 50px; object-fit: contain; image-rendering: pixelated; }
 
-        .plant-option:hover { transform:translateY(-5px); background: rgba(255,255,255,0.8); }
-        .plant-option.selected {
-            border-color: var(--accent-green);
-            background: var(--circle-bg);
-            box-shadow: 0 4px 10px rgba(85, 107, 47, 0.2);
-        }
-
-        .option-img { width: 50px; height: 50px; object-fit: contain; image-rendering: pixelated; margin-bottom: 5px; }
-        .option-name { display: block; font-size: 1rem; color: var(--primary-text); }
-
-        /* --- FOREST HISTORY --- */
+        /* FOREST */
         .forest-container {
-            width: 85%;
-            background-color: var(--bg-overlay);
-            border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            padding: 25px;
-            margin-bottom: 20px;
+            width: 85%; background-color: var(--bg-overlay);
+            border-radius: 25px; padding: 25px; margin-bottom: 20px;
             min-height: 250px;
-            transition: background-color 0.3s;
         }
+        .period-selector { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px dashed var(--border-color); }
+        .nav-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px; }
+        .nav-arrow { background: transparent; border: none; font-size: 1.5rem; color: var(--accent-green); cursor: pointer; }
+        .date-display { text-align: center; font-size: 1.2rem; min-width: 180px; }
+        .stats-display { text-align: center; font-size: 1.4rem; color: var(--accent-green); font-weight: bold; margin-bottom: 20px; }
         
-        .period-selector {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px; 
-            border-bottom: 2px dashed var(--border-color);
-            padding-bottom: 15px;
-        }
-
-        /* NAVIGATION CONTAINER */
-        .nav-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-        
-        .nav-arrow {
-            background: transparent;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--accent-green);
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: 0.2s;
-        }
-        .nav-arrow:hover { background-color: var(--circle-bg); }
-
-        .date-display {
-            text-align: center;
-            font-size: 1.2rem;
-            color: var(--primary-text);
-            opacity: 0.8;
-            letter-spacing: 1px;
-            min-width: 180px; /* Keeps layout stable */
-        }
-
-        .stats-display {
-            text-align: center;
-            font-size: 1.4rem;
-            color: var(--accent-green);
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
         .period-btn {
-            background: transparent;
-            border: 2px solid var(--accent-green);
-            color: var(--accent-green);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-family: 'VT323', monospace;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: 0.2s;
+            background: transparent; border: 2px solid var(--accent-green);
+            color: var(--accent-green); padding: 5px 15px; border-radius: 20px;
+            font-family: 'VT323', monospace; font-size: 1.1rem; cursor: pointer;
         }
-
-        .period-btn.active-period {
-            background: var(--accent-green);
-            color: var(--button-text);
-        }
-
-        .history-section { 
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        .history-section.active-history { 
-            display: block; 
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .plant-grid {
-            display: flex; flex-wrap: wrap; gap: 10px;
-            background-color: rgba(255,255,255,0.3);
-            padding: 15px; 
-            border-radius: 15px;
-            min-height: 60px;
-            justify-content: center; 
-        }
-        .history-plant { 
-            width: 40px; height: 40px; 
-            image-rendering: pixelated; 
-            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
-        }
-        .empty-msg { font-size: 1.1rem; color: var(--primary-text); opacity: 0.7; width: 100%; text-align: center; padding: 10px; }
-
+        .period-btn.active-period { background: var(--accent-green); color: var(--button-text); }
+        
+        .plant-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .history-plant { width: 40px; height: 40px; image-rendering: pixelated; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1)); }
     </style>
 </head>
 <body>
 
     <div class="app-container">
         <button class="header-icon-btn sound-toggle-btn" onclick="toggleSound()" id="sound-icon">🔊</button>
-        
         <button class="header-icon-btn theme-toggle-btn" onclick="toggleTheme()" id="theme-icon">☀️</button>
 
         <h1>Study Zen</h1>
@@ -433,7 +228,6 @@
         </div>
 
         <div id="view-timer" class="view-section active-view">
-            
             <div class="plant-circle" onclick="openGreenhouse()">
                 <div class="change-hint">Tap to swap</div>
                 <img id="plant-img" src="plant_stage_1.png" alt="Growing Plant">
@@ -453,7 +247,6 @@
 
         <div id="view-forest" class="view-section">
             <div class="forest-container">
-                
                 <div class="period-selector">
                     <button class="period-btn active-period" onclick="changePeriod('today')">Day</button>
                     <button class="period-btn" onclick="changePeriod('week')">Week</button>
@@ -468,10 +261,7 @@
 
                 <div id="stats-label" class="stats-display">Total Focus: 0h 0m</div>
 
-                <div class="history-section active-history">
-                    <div class="plant-grid" id="history-grid"></div>
-                </div>
-
+                <div class="plant-grid" id="history-grid"></div>
             </div>
         </div>
     </div>
@@ -479,9 +269,7 @@
     <div id="greenhouse-modal" class="modal-overlay" onclick="closeGreenhouse(event)">
         <div class="modal-content">
             <h2 style="font-family:'Dancing Script'; font-size:2.5rem; margin:0; color:var(--accent-green);">Growth Chart</h2>
-            <p style="margin-bottom: 20px;">Pick a seed to plant:</p>
-            <div class="plant-options" id="plant-list">
-                </div>
+            <div class="plant-options" id="plant-list"></div>
             <button class="main-btn btn-start" style="margin-top:25px;" onclick="closeGreenhouse(null, true)">Close</button>
         </div>
     </div>
@@ -496,7 +284,7 @@
     </div>
 
     <script>
-        // --- 1. PLANT LIBRARY ---
+        // --- 1. CONFIG & STATE ---
         const PLANT_LIBRARY = [
             { id: 'plant', name: 'Green Plant', images: ['plant_stage_1.png', 'plant_stage_2.png', 'plant_stage_3.png', 'plant_stage_4.png'] },
             { id: 'flower', name: 'Pink Flower', images: ['flower_1.png', 'flower_2.png', 'flower_3.png', 'flower_4.png'] },
@@ -505,7 +293,6 @@
             { id: 'daisy', name: 'Daisy', images: ['daisy_1.png', 'daisy_2.png', 'daisy_3.png', 'daisy_4.png'] }
         ];
 
-        // --- CONFIG & STATE ---
         let currentPlantIndex = 0; 
         let focusMinutes = 0.1; 
         const BREAK_MINUTES = 5;
@@ -514,16 +301,14 @@
         let mode = 'FOCUS'; 
         let timerInterval;
 
-        // --- HISTORY STATE ---
+        // History State
         let currentPeriod = 'today'; 
         let viewDate = new Date();
         
-        // --- AUDIO STATE ---
+        // Audio State
         let isMuted = false;
-        // UPDATED: Using a reliable raw GitHub link for a nice Meditation Bell
-        const alarmSound = new Audio('https://raw.githubusercontent.com/ArunMichaelDsouza/javascript-hard-parts/master/01-callbacks/audios/bell.mp3'); 
-        alarmSound.loop = true; 
-        alarmSound.volume = 1.0; // Force 100% volume
+        // We use AudioContext for reliable internal sound generation
+        let audioCtx = null;
 
         // --- ELEMENTS ---
         const plantImg = document.getElementById('plant-img');
@@ -539,31 +324,60 @@
         renderPlant(); 
         updateHistoryView(); 
 
-        // --- TOGGLES ---
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            themeBtn.textContent = isDark ? '🌙' : '☀️';
+        // --- SOUND SYSTEM (The Fix) ---
+        function playDigitalChime() {
+            if (isMuted) return;
+
+            // Initialize AudioContext if not already done (must be done on user gesture)
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) audioCtx = new AudioContext();
+            }
+
+            if (!audioCtx) return; // Browser doesn't support audio
+
+            // Resume context if suspended (common in Chrome/Safari)
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            // Create a pleasant chime tone using Oscillators
+            const t = audioCtx.currentTime;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            // Sine wave for smooth "Zen" bell sound
+            oscillator.type = 'sine'; 
+            // Frequency A5 (880Hz) fading down
+            oscillator.frequency.setValueAtTime(880, t);
+            oscillator.frequency.exponentialRampToValueAtTime(110, t + 2);
+
+            // Volume control (Fade out)
+            gainNode.gain.setValueAtTime(0.5, t);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, t + 2);
+
+            oscillator.start(t);
+            oscillator.stop(t + 2);
         }
 
         function toggleSound() {
             isMuted = !isMuted;
             soundBtn.textContent = isMuted ? '🔇' : '🔊';
             
-            if(isMuted) {
-                // Muted
-                alarmSound.pause();
-                alarmSound.currentTime = 0;
-            } else {
-                // TEST SOUND: Play immediately when unmuted to verify
-                alarmSound.play().then(() => {
-                    // Play for 1 second then stop, just to test
-                    setTimeout(() => {
-                        alarmSound.pause();
-                        alarmSound.currentTime = 0;
-                    }, 1500);
-                }).catch(e => console.log("Audio test failed"));
+            // TEST THE SOUND IMMEDIATELY
+            if (!isMuted) {
+                playDigitalChime();
             }
+        }
+
+        // --- TOGGLES ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            themeBtn.textContent = isDark ? '🌙' : '☀️';
         }
 
         // --- GREENHOUSE ---
@@ -598,18 +412,18 @@
         // --- TIMER ---
         function toggleTimer() {
             if (isActive) {
-                // User wants to PAUSE
                 clearInterval(timerInterval);
                 isActive = false;
                 startBtn.textContent = "Resume";
                 toggleAdjust(true);
             } else {
-                // User wants to START
-                if(!isMuted) {
-                    alarmSound.play().then(() => {
-                        alarmSound.pause();
-                        alarmSound.currentTime = 0;
-                    }).catch(e => console.log("Audio priming skipped:", e));
+                // Initialize audio context on first user interaction
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) audioCtx = new AudioContext();
+                }
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
                 }
 
                 isActive = true;
@@ -668,11 +482,8 @@
             clearInterval(timerInterval);
             isActive = false;
             
-            // Only play audio if NOT muted
-            if(!isMuted) {
-                alarmSound.currentTime = 0;
-                alarmSound.play().catch(e => console.log("Audio play failed interaction required"));
-            }
+            // PLAY INTERNAL SOUND
+            playDigitalChime();
             
             if ("vibrate" in navigator) navigator.vibrate([500, 500, 500]);
 
@@ -694,13 +505,9 @@
         }
 
         function stopAlarmAndClose() {
-            alarmSound.pause();
-            alarmSound.currentTime = 0;
             document.getElementById('completion-modal').style.display = 'none';
             updatePlantVisuals();
             updateDisplay();
-            
-            // Reload history to current day to show new plant
             viewDate = new Date();
             updateHistoryView(); 
         }
@@ -725,23 +532,18 @@
             localStorage.setItem('studyHistory', JSON.stringify(history));
         }
 
-        // --- HISTORY VIEW & TIME TRAVEL ---
-
+        // --- HISTORY VIEW ---
         function changePeriod(period) {
             currentPeriod = period;
-            // Highlight button
             document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active-period'));
-            // Button indexes: 0=Today, 1=Week, 2=Month
             const btns = document.querySelectorAll('.period-btn');
             if(period==='today') btns[0].classList.add('active-period');
             if(period==='week') btns[1].classList.add('active-period');
             if(period==='month') btns[2].classList.add('active-period');
-            
             updateHistoryView();
         }
 
         function shiftDate(direction) {
-            // direction: -1 (back) or 1 (forward)
             if (currentPeriod === 'today') {
                 viewDate.setDate(viewDate.getDate() + direction);
             } else if (currentPeriod === 'week') {
@@ -761,65 +563,45 @@
             historyGrid.innerHTML = '';
             let labelText = '';
             
-            // Calculate Start and End range based on viewDate and currentPeriod
             let startDate, endDate;
-
             if (currentPeriod === 'today') {
-                startDate = new Date(viewDate);
-                startDate.setHours(0,0,0,0);
-                endDate = new Date(viewDate);
-                endDate.setHours(23,59,59,999);
+                startDate = new Date(viewDate); startDate.setHours(0,0,0,0);
+                endDate = new Date(viewDate); endDate.setHours(23,59,59,999);
                 labelText = viewDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            } 
-            else if (currentPeriod === 'week') {
+            } else if (currentPeriod === 'week') {
                 const day = viewDate.getDay(); 
-                const diff = viewDate.getDate() - day; // Adjust to Sunday
-                startDate = new Date(viewDate);
-                startDate.setDate(diff);
-                startDate.setHours(0,0,0,0);
-
-                endDate = new Date(startDate);
-                endDate.setDate(startDate.getDate() + 6);
-                endDate.setHours(23,59,59,999);
+                const diff = viewDate.getDate() - day; 
+                startDate = new Date(viewDate); startDate.setDate(diff); startDate.setHours(0,0,0,0);
+                endDate = new Date(startDate); endDate.setDate(startDate.getDate() + 6); endDate.setHours(23,59,59,999);
                 labelText = `${formatDate(startDate)} - ${formatDate(endDate)}`;
-            } 
-            else if (currentPeriod === 'month') {
+            } else if (currentPeriod === 'month') {
                 startDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
-                endDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
-                endDate.setHours(23,59,59,999);
+                endDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0); endDate.setHours(23,59,59,999);
                 labelText = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
             }
 
             dateLabel.textContent = labelText;
 
-            // Filter history items and Calculate Total Minutes
             let totalMinutes = 0;
             let count = 0;
-
             history.forEach(entry => {
                 const entryDate = new Date(entry.date);
                 if (entryDate >= startDate && entryDate <= endDate) {
-                    // Add visual item
                     const img = document.createElement('img');
                     img.src = entry.plantImage || 'plant_stage_4.png'; 
                     img.className = 'history-plant';
                     img.title = `${entryDate.toLocaleString()} (${entry.minutes} mins)`;
                     historyGrid.appendChild(img);
-                    
-                    // Add to stats
                     totalMinutes += parseInt(entry.minutes);
                     count++;
                 }
             });
 
-            // Update Stats Display
             const hours = Math.floor(totalMinutes / 60);
             const mins = totalMinutes % 60;
             statsLabel.textContent = `Total Focus: ${hours}h ${mins}m`;
 
-            if (count === 0) {
-                historyGrid.innerHTML = '<div class="empty-msg">No study sessions this period.</div>';
-            }
+            if (count === 0) historyGrid.innerHTML = '<div class="empty-msg">No study sessions this period.</div>';
         }
 
         function switchTab(tabName) {
